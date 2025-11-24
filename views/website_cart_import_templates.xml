@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Extend website_sale cart template -->
+    <template id="window_cart_upload_block" inherit_id="website_sale.cart">
+        <xpath expr="//div[contains(@class, 'oe_cart')]" position="after">
+            <t t-set="partner" t-value="request.env.user.partner_id.commercial_partner_id"/>
+            <t t-if="partner and partner.allow_window_schedule_upload">
+                <section class="mt-4 mb-4" style="border: 1px solid #dee2e6; border-radius: 0.25rem; padding: 1.5rem; background-color: #f8f9fa;">
+                    <h3>Upload Window Schedule</h3>
+                    <p>
+                        Upload an XLSX or CSV schedule to add multiple configured
+                        windows/doors to your cart in one step.
+                    </p>
+                    
+                    <!-- show any error or summary messages from session -->
+                    <t t-if="request.session.get('window_schedule_upload_error')">
+                        <div class="alert alert-danger" role="alert">
+                            <t t-esc="request.session.pop('window_schedule_upload_error')"/>
+                        </div>
+                    </t>
+                    
+                    <t t-if="request.session.get('window_schedule_upload_summary')">
+                        <t t-set="summary" t-value="request.session.pop('window_schedule_upload_summary')"/>
+                        <div class="alert alert-info" role="alert">
+                            <strong>Import Summary:</strong>
+                            <t t-esc="summary.get('success_count', 0)"/> line(s) added successfully.
+                            <t t-if="summary.get('failure_messages')">
+                                <br/>
+                                <strong>Issues:</strong>
+                                <ul>
+                                    <li t-foreach="summary.get('failure_messages')" t-as="msg">
+                                        <t t-esc="msg"/>
+                                    </li>
+                                </ul>
+                            </t>
+                        </div>
+                    </t>
+                    
+                    <form action="/shop/cart/upload_window_schedule"
+                          method="post"
+                          enctype="multipart/form-data">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <div class="form-group">
+                            <label for="schedule_file">Window schedule file (XLSX/CSV)</label>
+                            <input id="schedule_file"
+                                   name="schedule_file"
+                                   class="form-control"
+                                   type="file"
+                                   accept=".csv,.xlsx"
+                                   required="required"/>
+                            <small class="form-text text-muted">
+                                Required columns: Width, Height, Qty. Optional: Label, System, Product Code, Unit, Color, Glass, Hardware
+                            </small>
+                        </div>
+                        <div class="mt-2">
+                            <a href="/shop/cart/window_schedule_template"
+                               class="btn btn-link">
+                                <i class="fa fa-download"/> Download template
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-upload"/> Upload and fill cart
+                            </button>
+                        </div>
+                    </form>
+                </section>
+            </t>
+        </xpath>
+    </template>
+</odoo>
+

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_form_window_schedule_upload" model="ir.ui.view">
+        <field name="name">res.partner.form.window.schedule.upload</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='category_id']" position="after">
+                <field name="allow_window_schedule_upload" 
+                       widget="boolean_toggle"
+                       options="{'label_field': 'name'}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+
