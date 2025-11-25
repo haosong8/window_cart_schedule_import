@@ -11,3 +11,4 @@ class ResPartner(models.Model):
         help="If enabled, this partner can upload window schedules on the website cart.",
     )
 
+

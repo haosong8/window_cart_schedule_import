@@ -26,9 +26,15 @@ Window Cart Schedule Import
         'views/res_partner_views.xml',
         'views/website_cart_import_templates.xml',
     ],
+    'assets': {
+        'web.assets_frontend': [
+            'window_cart_schedule_import/static/src/js/window_cart_upload.js',
+        ],
+    },
     'installable': True,
     'application': False,
     'auto_install': False,
     'license': 'LGPL-3',
 }
+
 

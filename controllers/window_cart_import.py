@@ -206,6 +206,63 @@ class WindowCartImportController(http.Controller):
         }
 
     @http.route(
+        "/shop/cart/get_upload_block",
+        type="http",
+        auth="public",
+        website=True,
+        methods=["GET"],
+    )
+    def get_upload_block(self, **kw):
+        """Return the upload block HTML for JavaScript injection."""
+        _logger.info("Window Cart Upload: get_upload_block called")
+        
+        if request.env.user._is_public():
+            _logger.info("Window Cart Upload: User is public, returning empty")
+            return request.make_response("")
+        
+        _logger.info("Window Cart Upload: User is logged in: %s", request.env.user.login)
+        
+        partner = request.env.user.partner_id.commercial_partner_id
+        is_company = partner.company_type == "company"
+        allow_upload = is_company or partner.allow_window_schedule_upload
+
+        _logger.info(
+            "Window Cart Upload: Partner: %s (company_type=%s, allow_flag=%s, effective_access=%s)",
+            partner.name,
+            partner.company_type,
+            partner.allow_window_schedule_upload,
+            allow_upload,
+        )
+        
+        if not allow_upload:
+            _logger.info("Window Cart Upload: Partner does not have permission, returning empty")
+            _logger.info(
+                "Window Cart Upload: To enable, either set company_type='company' or allow_window_schedule_upload=True on partner: %s (ID: %s)",
+                partner.name,
+                partner.id,
+            )
+            return request.make_response("")
+        elif is_company and not partner.allow_window_schedule_upload:
+            _logger.info(
+                "Window Cart Upload: Partner is a company, auto-enabling upload access even though flag is False"
+            )
+        
+        # Render the template
+        try:
+            _logger.info("Window Cart Upload: Attempting to render template: window_cart_schedule_import.window_cart_upload_block")
+            html = request.env["ir.ui.view"]._render_template(
+                "window_cart_schedule_import.window_cart_upload_block",
+                values={}
+            )
+            _logger.info("Window Cart Upload: Template rendered successfully, HTML length: %s", len(html) if html else 0)
+            if html:
+                _logger.info("Window Cart Upload: HTML preview (first 300 chars): %s", html[:300])
+            return html
+        except Exception as e:
+            _logger.exception("Window Cart Upload: Error rendering template: %s", str(e))
+            return request.make_response("")
+
+    @http.route(
         "/shop/cart/window_schedule_template",
         type="http",
         auth="public",
@@ -218,7 +275,8 @@ class WindowCartImportController(http.Controller):
             return request.redirect("/web/login?redirect=/shop/cart")
         
         partner = request.env.user.partner_id.commercial_partner_id
-        if not partner.allow_window_schedule_upload:
+        allow_upload = (partner.company_type == "company") or partner.allow_window_schedule_upload
+        if not allow_upload:
             raise Forbidden(_("You are not allowed to download window schedule templates."))
 
         template_content = (

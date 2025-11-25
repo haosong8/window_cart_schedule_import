@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <!-- Template for window cart upload block -->
+    <t t-name="window_cart_upload.block" t-raw="0"/>
+</templates>
+

@@ -1,33 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Extend website_sale cart template -->
-    <template id="window_cart_upload_block" inherit_id="website_sale.cart">
-        <xpath expr="//div[contains(@class, 'oe_cart')]" position="after">
+    <!-- Standalone template for the upload block (injected via JavaScript) -->
+    <template id="window_cart_upload_block" name="Window Cart Upload Block">
+        <t t-if="not request.env.user._is_public()">
             <t t-set="partner" t-value="request.env.user.partner_id.commercial_partner_id"/>
-            <t t-if="partner and partner.allow_window_schedule_upload">
-                <section class="mt-4 mb-4" style="border: 1px solid #dee2e6; border-radius: 0.25rem; padding: 1.5rem; background-color: #f8f9fa;">
-                    <h3>Upload Window Schedule</h3>
-                    <p>
-                        Upload an XLSX or CSV schedule to add multiple configured
-                        windows/doors to your cart in one step.
-                    </p>
-                    
+            <t t-set="allow_upload"
+                 t-value="partner and (partner.company_type == 'company' or partner.allow_window_schedule_upload)"/>
+            <t t-if="allow_upload">
+                <div class="window-cart-upload-block mt-3 mb-3" style="border: 1px solid #dee2e6; border-radius: 0.25rem; padding: 1rem; background-color: #f8f9fa;">
                     <!-- show any error or summary messages from session -->
                     <t t-if="request.session.get('window_schedule_upload_error')">
-                        <div class="alert alert-danger" role="alert">
+                        <div class="alert alert-danger mb-2" role="alert">
                             <t t-esc="request.session.pop('window_schedule_upload_error')"/>
                         </div>
                     </t>
                     
                     <t t-if="request.session.get('window_schedule_upload_summary')">
                         <t t-set="summary" t-value="request.session.pop('window_schedule_upload_summary')"/>
-                        <div class="alert alert-info" role="alert">
+                        <div class="alert alert-info mb-2" role="alert">
                             <strong>Import Summary:</strong>
                             <t t-esc="summary.get('success_count', 0)"/> line(s) added successfully.
                             <t t-if="summary.get('failure_messages')">
                                 <br/>
                                 <strong>Issues:</strong>
-                                <ul>
+                                <ul class="mb-0">
                                     <li t-foreach="summary.get('failure_messages')" t-as="msg">
                                         <t t-esc="msg"/>
                                     </li>
@@ -40,31 +36,31 @@
                           method="post"
                           enctype="multipart/form-data">
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                        <div class="form-group">
-                            <label for="schedule_file">Window schedule file (XLSX/CSV)</label>
-                            <input id="schedule_file"
+                        <div class="form-group mb-2">
+                            <label class="form-label">
+                                Upload window schedule (.csv / .xlsx)
+                            </label>
+                            <input type="file"
                                    name="schedule_file"
-                                   class="form-control"
-                                   type="file"
                                    accept=".csv,.xlsx"
+                                   class="form-control"
                                    required="required"/>
                             <small class="form-text text-muted">
                                 Required columns: Width, Height, Qty. Optional: Label, System, Product Code, Unit, Color, Glass, Hardware
                             </small>
                         </div>
-                        <div class="mt-2">
+                        <div class="d-flex gap-2">
                             <a href="/shop/cart/window_schedule_template"
-                               class="btn btn-link">
+                               class="btn btn-link p-0">
                                 <i class="fa fa-download"/> Download template
                             </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fa fa-upload"/> Upload and fill cart
+                            <button type="submit" class="btn btn-secondary">
+                                <i class="fa fa-upload"/> Import to Cart
                             </button>
                         </div>
                     </form>
-                </section>
+                </div>
             </t>
-        </xpath>
+        </t>
     </template>
 </odoo>
-

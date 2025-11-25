@@ -31,10 +31,10 @@ Odoo module that enables B2B customers to upload XLSX/CSV window schedules direc
 ### Enable B2B Access
 
 1. Go to **Contacts** → Select a partner (or create a new B2B partner)
-2. In the partner form, enable the checkbox **"Allow Window Schedule Upload (B2B)"**
+2. For **company** partners, access is granted automatically. For individual contacts, enable the checkbox **"Allow Window Schedule Upload (B2B)"**
 3. Save the partner record
 
-**Note**: The flag should be set on the **commercial partner** (parent company), not individual contacts.
+**Note**: The flag should be set on the **commercial partner** (parent company), not individual contacts. Company-type records can leave the flag unchecked; individual/child contacts must have it enabled explicitly.
 
 ## Usage
 
@@ -218,4 +218,5 @@ Alumen
 ## Version
 
 18.0.1.0.0
+
 
